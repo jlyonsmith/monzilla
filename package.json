@@ -4,7 +4,9 @@
   "description": "The Godzilla of file monitoring tools",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest"
+    "build": "babel src -d dist -s --ignore *.test.js",
+    "debug": "babel-node --inspect-brk src/monzilla-cli.js",
+    "test": "jest --testMatch src/**/*.test.js"
   },
   "keywords": [
     "file",

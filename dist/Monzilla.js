@@ -116,8 +116,6 @@ class Monzilla {
 usage: monzilla [options] <glob>[:<glob>...] -- <command>...
 
 options:
-  --patch | --minor | --major   Release a patch, minor or major version. For 'release' command only.
-  --clean                       Do a clean build.  For 'build' command only.
   --help                        Shows this help.
   --version                     Shows the tool version.
 `);

@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "The king of the file monitoring tools",
   "bin": {
-    "snap": "dist/monzilla-cli.js"
+    "monzilla": "dist/monzilla-cli.js"
   },
   "files": [
     "dist/**"

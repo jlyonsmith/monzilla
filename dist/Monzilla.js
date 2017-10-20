@@ -53,6 +53,7 @@ class Monzilla {
 
   runCommand() {
     this.log.info2(`Running command '${this.args.command}'`);
+    this.log.info2('Control+C to exit/Control+R to restart');
     const childProcess = (0, _child_process.exec)(this.args.command);
 
     childProcess.on('exit', (code, signal) => {
@@ -68,7 +69,7 @@ class Monzilla {
         }
       }
 
-      this.log.info2('Waiting for file changes to restart. Control+C to exit; Control+R to restart now');
+      this.log.info2('Waiting for file changes before running again');
       this.childProcess = null;
     });
 

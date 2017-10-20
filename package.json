@@ -1,0 +1,29 @@
+{
+  "name": "monzilla",
+  "version": "1.0.0",
+  "description": "The Godzilla of file monitoring tools",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "file",
+    "monitor"
+  ],
+  "author": "John Lyon-Smith",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "jest": "^21.2.1"
+  },
+  "dependencies": {
+    "auto-bind2": "^1.0.3",
+    "chalk": "^2.2.0",
+    "glob": "^7.1.2",
+    "minimist": "^1.2.0"
+  }
+}

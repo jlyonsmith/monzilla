@@ -35,6 +35,12 @@ var _chalk = require('chalk');
 
 var _chalk2 = _interopRequireDefault(_chalk);
 
+var _psTree = require('ps-tree');
+
+var _psTree2 = _interopRequireDefault(_psTree);
+
+var _util = require('util');
+
 var _version = require('./version');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -92,11 +98,25 @@ class Monzilla {
 
       if (childProcess) {
         childProcess.restart = true;
-        childProcess.kill();
+        this.killCommand();
       } else {
         this.runCommand();
       }
     }, 200);
+  }
+
+  killCommand() {
+    const childProcess = this.childProcess;
+
+    if (childProcess) {
+      return (0, _util.promisify)(_psTree2.default)(childProcess.pid).then(children => {
+        (0, _child_process.spawn)('kill', ['-9'].concat(children.map(function (p) {
+          return p.PID;
+        })));
+      });
+    } else {
+      return Promise.resolve();
+    }
   }
 
   async run(argv) {
@@ -162,7 +182,9 @@ options:
     process.stdin.on('keypress', (str, key) => {
       if (key.ctrl) {
         if (key.name === 'c') {
-          process.exit();
+          this.killCommand().then(() => {
+            process.exit(0);
+          });
         } else {
           this.restartCommand();
         }

@@ -2,11 +2,13 @@ import { sync as globSync } from 'glob'
 import parseArgs from 'minimist'
 import path from 'path'
 import fs from 'fs'
-import { exec } from 'child_process'
+import { exec, spawn } from 'child_process'
 import { setTimeout } from 'timers'
 import autoBind from 'auto-bind2'
 import readline from 'readline'
 import chalk from 'chalk'
+import psTree from 'ps-tree'
+import { promisify } from 'util'
 import { fullVersion } from './version'
 
 export class Monzilla {
@@ -62,11 +64,23 @@ export class Monzilla {
 
       if (childProcess) {
         childProcess.restart = true
-        childProcess.kill()
+        this.killCommand()
       } else {
         this.runCommand()
       }
     }, 200)
+  }
+
+  killCommand() {
+    const childProcess = this.childProcess
+
+    if (childProcess) {
+      return promisify(psTree)(childProcess.pid).then((children) => {
+        spawn('kill', ['-9'].concat(children.map(function (p) { return p.PID })))
+      })
+    } else {
+      return Promise.resolve()
+    }
   }
 
   async run(argv) {
@@ -132,7 +146,9 @@ options:
     process.stdin.on('keypress', (str, key) => {
       if (key.ctrl) {
         if (key.name === 'c') {
-          process.exit()
+          this.killCommand().then(() => {
+            process.exit(0)
+          })
         } else {
           this.restartCommand()
         }

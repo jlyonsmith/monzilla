@@ -92,16 +92,15 @@ class Monzilla {
     if (this.childProcess) {
       this.childProcess.restart = true;
       this.killProcess(this.childProcess.pid);
+      // Process will restart when it exits
     } else {
       this.runCommand();
     }
   }
 
   killProcess(pid) {
-    console.log(`child process ${pid}`);
     return (0, _util.promisify)(_psTree2.default)(pid).then(children => {
       const cmd = ['kill', '-9', ...children.map(p => p.PID), pid].join(' ');
-      console.log(cmd);
       return (0, _util.promisify)(_child_process.exec)(cmd);
     });
   }

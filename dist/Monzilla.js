@@ -70,7 +70,6 @@ class Monzilla {
       }
 
       this.log.info2('Waiting for file changes before running again');
-      this.childProcess = null;
     });
 
     childProcess.on('error', error => {
@@ -90,34 +89,21 @@ class Monzilla {
   }
 
   restartCommand() {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
+    if (this.childProcess) {
+      this.childProcess.restart = true;
+      this.killProcess(this.childProcess.pid);
+    } else {
+      this.runCommand();
     }
-
-    this.timeout = (0, _timers.setTimeout)(() => {
-      let childProcess = this.childProcess;
-
-      if (childProcess) {
-        childProcess.restart = true;
-        this.killCommand();
-      } else {
-        this.runCommand();
-      }
-    }, 200);
   }
 
-  killCommand() {
-    const childProcess = this.childProcess;
-
-    if (childProcess) {
-      return (0, _util.promisify)(_psTree2.default)(childProcess.pid).then(children => {
-        (0, _child_process.spawn)('kill', ['-9'].concat(children.map(function (p) {
-          return p.PID;
-        })));
-      });
-    } else {
-      return Promise.resolve();
-    }
+  killProcess(pid) {
+    console.log(`child process ${pid}`);
+    return (0, _util.promisify)(_psTree2.default)(pid).then(children => {
+      const cmd = ['kill', '-9', ...children.map(p => p.PID), pid].join(' ');
+      console.log(cmd);
+      return (0, _util.promisify)(_child_process.exec)(cmd);
+    });
   }
 
   async run(argv) {
@@ -182,12 +168,21 @@ options:
 
     process.stdin.on('keypress', (str, key) => {
       if (key.ctrl) {
-        if (key.name === 'c') {
-          this.killCommand().then(() => {
-            process.exit(0);
-          });
-        } else {
-          this.restartCommand();
+        switch (key.name) {
+          case 'c':
+            if (this.childProcess) {
+              this.killProcess(this.childProcess.pid).then(() => {
+                process.exit(0);
+              });
+            } else {
+              process.exit(0);
+            }
+            break;
+          case 'r':
+            this.restartCommand();
+            break;
+          default:
+            break;
         }
       }
     });
@@ -200,7 +195,14 @@ options:
       const watcher = _fs2.default.watch(dirname);
 
       watcher.on('change', (eventType, filename) => {
-        this.restartCommand();
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+        }
+
+        // Debounce changes to files
+        this.timeout = (0, _timers.setTimeout)(() => {
+          this.restartCommand();
+        }, 500);
       });
 
       watchers.push(watcher);

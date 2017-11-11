@@ -2,7 +2,7 @@ import { sync as globSync } from 'glob'
 import parseArgs from 'minimist'
 import path from 'path'
 import fs from 'fs'
-import { exec, spawn } from 'child_process'
+import { exec } from 'child_process'
 import { setTimeout } from 'timers'
 import autoBind from 'auto-bind2'
 import readline from 'readline'
@@ -36,7 +36,6 @@ export class Monzilla {
       }
 
       this.log.info2('Waiting for file changes before running again')
-      this.childProcess = null
     })
 
     childProcess.on('error', (error) => {
@@ -56,32 +55,20 @@ export class Monzilla {
   }
 
   restartCommand() {
-    if (this.timeout) {
-      clearTimeout(this.timeout)
+    if (this.childProcess) {
+      this.childProcess.restart = true
+      this.killProcess(this.childProcess.pid)
+      // Process will restart when it exits
+    } else {
+      this.runCommand()
     }
-
-    this.timeout = setTimeout(() => {
-      let childProcess = this.childProcess
-
-      if (childProcess) {
-        childProcess.restart = true
-        this.killCommand()
-      } else {
-        this.runCommand()
-      }
-    }, 200)
   }
 
-  killCommand() {
-    const childProcess = this.childProcess
-
-    if (childProcess) {
-      return promisify(psTree)(childProcess.pid).then((children) => {
-        spawn('kill', ['-9'].concat(children.map(function (p) { return p.PID })))
-      })
-    } else {
-      return Promise.resolve()
-    }
+  killProcess(pid) {
+    return promisify(psTree)(pid).then((children) => {
+      const cmd = ['kill', '-9', ...children.map(p => p.PID), pid].join(' ')
+      return promisify(exec)(cmd)
+    })
   }
 
   async run(argv) {
@@ -146,12 +133,21 @@ options:
 
     process.stdin.on('keypress', (str, key) => {
       if (key.ctrl) {
-        if (key.name === 'c') {
-          this.killCommand().then(() => {
-            process.exit(0)
-          })
-        } else {
-          this.restartCommand()
+        switch (key.name) {
+          case 'c':
+            if (this.childProcess) {
+              this.killProcess(this.childProcess.pid).then(() => {
+                process.exit(0)
+              })
+            } else {
+              process.exit(0)
+            }
+            break
+          case 'r':
+            this.restartCommand()
+            break
+          default:
+            break
         }
       }
     })
@@ -164,7 +160,14 @@ options:
       const watcher = fs.watch(dirname)
 
       watcher.on('change', (eventType, filename) => {
-        this.restartCommand()
+        if (this.timeout) {
+          clearTimeout(this.timeout)
+        }
+
+        // Debounce changes to files
+        this.timeout = setTimeout(() => {
+          this.restartCommand()
+        }, 500)
       })
 
       watchers.push(watcher)

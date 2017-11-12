@@ -23,9 +23,7 @@ export class Monzilla {
     const childProcess = exec(this.args.command)
 
     childProcess.on('exit', (code, signal) => {
-      const oldChildProcess = this.childProcess
-
-      if (oldChildProcess && oldChildProcess.restart) {
+      if (this.childProcess.restart) {
         this.runCommand(this.args.command)
       } else {
         if (code === 0) {
@@ -33,9 +31,9 @@ export class Monzilla {
         } else {
           this.log.warning2(`Command exited with error code ${code}`)
         }
+        this.childProcess = null
+        this.log.info2('Waiting for file changes before running again')
       }
-
-      this.log.info2('Waiting for file changes before running again')
     })
 
     childProcess.on('error', (error) => {
@@ -64,11 +62,14 @@ export class Monzilla {
     }
   }
 
-  killProcess(pid) {
-    return promisify(psTree)(pid).then((children) => {
-      const cmd = ['kill', '-9', ...children.map(p => p.PID), pid].join(' ')
-      return promisify(exec)(cmd)
-    })
+  async killProcess(pid) {
+    const children = await promisify(psTree)(pid)
+
+    try {
+      await promisify(exec)(['kill', '-9', ...children.map(p => p.PID), pid].join(' '))
+    } catch (error) {
+      this.log.error(`Could not kill PID ${pid}`)
+    }
   }
 
   async run(argv) {

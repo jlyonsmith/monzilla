@@ -57,9 +57,7 @@ class Monzilla {
     const childProcess = (0, _child_process.exec)(this.args.command);
 
     childProcess.on('exit', (code, signal) => {
-      const oldChildProcess = this.childProcess;
-
-      if (oldChildProcess && oldChildProcess.restart) {
+      if (this.childProcess.restart) {
         this.runCommand(this.args.command);
       } else {
         if (code === 0) {
@@ -67,9 +65,9 @@ class Monzilla {
         } else {
           this.log.warning2(`Command exited with error code ${code}`);
         }
+        this.childProcess = null;
+        this.log.info2('Waiting for file changes before running again');
       }
-
-      this.log.info2('Waiting for file changes before running again');
     });
 
     childProcess.on('error', error => {
@@ -98,11 +96,14 @@ class Monzilla {
     }
   }
 
-  killProcess(pid) {
-    return (0, _util.promisify)(_psTree2.default)(pid).then(children => {
-      const cmd = ['kill', '-9', ...children.map(p => p.PID), pid].join(' ');
-      return (0, _util.promisify)(_child_process.exec)(cmd);
-    });
+  async killProcess(pid) {
+    const children = await (0, _util.promisify)(_psTree2.default)(pid);
+
+    try {
+      await (0, _util.promisify)(_child_process.exec)(['kill', '-9', ...children.map(p => p.PID), pid].join(' '));
+    } catch (error) {
+      this.log.error(`Could not kill PID ${pid}`);
+    }
   }
 
   async run(argv) {

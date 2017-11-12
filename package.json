@@ -1,6 +1,6 @@
 {
   "name": "monzilla",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "The king of the file monitoring tools",
   "bin": {
     "monzilla": "dist/monzilla-cli.js"

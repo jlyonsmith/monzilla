@@ -1,19 +1,6 @@
 import { Monzilla } from './Monzilla'
-import tmp from 'tmp'
 import fs from 'fs'
 import util from 'util'
-
-let tmpDirObj = null
-
-beforeAll(() => {
-  tmpDirObj = tmp.dirSync()
-})
-
-afterAll(() => {
-  if (tmpDirObj) {
-    tmpDirObj.removeCallback()
-  }
-})
 
 function getMockLog() {
   return {
@@ -54,12 +41,12 @@ test('test version', done => {
   })
 })
 
-test('test basic', done => {
+test('test no args', done => {
   const mockLog = getMockLog()
   const tool = new Monzilla(mockLog)
 
-  return tool.run(['src/**/*;node_modules/dep1/dist/**/*']).then(exitCode => {
-    expect(exitCode).toBe(0)
+  return tool.run([]).then(exitCode => {
+    expect(exitCode).toBe(-1)
     done()
   })
 })

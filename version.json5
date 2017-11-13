@@ -9,9 +9,9 @@
   tags: {
     major: 1,
     minor: 0,
-    patch: 7,
+    patch: 8,
     build: 20171113,
-    revision: 2,
+    revision: 0,
     tz: "America/Los_Angeles",
     startYear: "2017"
   },

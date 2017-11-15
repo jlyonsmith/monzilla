@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Monzilla = undefined;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _glob = require('glob');
 
 var _minimist = require('minimist');
@@ -54,7 +56,10 @@ class Monzilla {
   runCommand() {
     this.log.info2(`Running command '${this.args.command}'`);
     this.log.info2('Control+C to exit/Control+R to restart');
-    const childProcess = (0, _child_process.exec)(this.args.command);
+    const childProcess = (0, _child_process.exec)(this.args.command, {
+      env: _extends({}, process.env, { FORCE_COLOR: 1 }),
+      shell: '/bin/bash'
+    });
 
     childProcess.on('exit', (code, signal) => {
       if (this.childProcess.restart) {

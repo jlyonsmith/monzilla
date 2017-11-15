@@ -20,7 +20,10 @@ export class Monzilla {
   runCommand() {
     this.log.info2(`Running command '${this.args.command}'`)
     this.log.info2('Control+C to exit/Control+R to restart')
-    const childProcess = exec(this.args.command)
+    const childProcess = exec(this.args.command, {
+      env: { ...process.env, FORCE_COLOR: 1 },
+      shell: '/bin/bash'
+    })
 
     childProcess.on('exit', (code, signal) => {
       if (this.childProcess.restart) {

@@ -27,7 +27,10 @@ const log = {
     console.error(_chalk.default.yellow("[monzilla] warning:", [...arguments].join(" ")));
   }
 };
-const tool = new _MonzillaTool.MonzillaTool(_path.default.basename(process.argv[1], ".js"), log);
+const tool = new _MonzillaTool.MonzillaTool({
+  toolName: _path.default.basename(process.argv[1], ".js"),
+  log
+});
 tool.run(process.argv.slice(2)).then(exitCode => {
   if (exitCode !== 0) {
     process.exit(exitCode);

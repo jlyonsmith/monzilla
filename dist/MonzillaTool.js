@@ -34,9 +34,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 let MonzillaTool = (0, _autobindDecorator.default)(_class = class MonzillaTool {
-  constructor(toolName, log) {
-    this.toolName = toolName;
-    this.log = log;
+  constructor(container) {
+    this.toolName = container.toolName;
+    this.log = container.log;
+    this.debug = container.debug;
   }
 
   runCommand() {

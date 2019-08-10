@@ -1,55 +1,42 @@
 "use strict";
 
-var _Monzilla = require("./Monzilla");
+var _MonzillaTool = require("./MonzillaTool");
 
-var _fs = _interopRequireDefault(require("fs"));
-
-var _util = _interopRequireDefault(require("util"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function getMockLog() {
-  return {
-    info: jest.fn(),
-    warning: jest.fn(),
-    error: jest.fn()
+let container = null;
+beforeEach(() => {
+  container = {
+    toolName: "monzilla",
+    log: {
+      info: jest.fn(),
+      warning: jest.fn(),
+      error: jest.fn(),
+      info2: jest.fn(),
+      error2: jest.fn(),
+      warning2: jest.fn()
+    }
   };
-}
+});
 
-function getOutput(fn) {
+const getOutput = fn => {
   const calls = fn.mock.calls;
+  return calls.length > 0 && calls[0].length > 0 ? calls[0][0] : "";
+};
 
-  if (calls.length > 0 && calls[0].length > 0) {
-    return calls[0][0];
-  } else {
-    return '';
-  }
-}
-
-test('test help', done => {
-  const mockLog = getMockLog();
-  const tool = new _Monzilla.Monzilla(mockLog);
-  return tool.run(['--help']).then(exitCode => {
-    expect(exitCode).toBe(0);
-    expect(getOutput(mockLog.info)).toEqual(expect.stringContaining('--help'));
-    done();
-  });
+test("--help", async () => {
+  const tool = new _MonzillaTool.MonzillaTool(container);
+  const exitCode = await tool.run(["--help"]);
+  expect(exitCode).toBe(0);
+  expect(getOutput(container.log.info)).toEqual(expect.stringContaining("--help"));
 });
-test('test version', done => {
-  const mockLog = getMockLog();
-  const tool = new _Monzilla.Monzilla(mockLog);
-  return tool.run(['--version']).then(exitCode => {
-    expect(exitCode).toBe(0);
-    expect(getOutput(mockLog.info)).toEqual(expect.stringMatching(/\d\.\d\.\d/));
-    done();
-  });
+test("--version", async () => {
+  const tool = new _MonzillaTool.MonzillaTool(container);
+  const exitCode = await tool.run(["--version"]);
+  expect(exitCode).toBe(0);
+  expect(getOutput(container.log.info)).toEqual(expect.stringMatching(/\d\.\d\.\d/));
 });
-test('test no args', done => {
-  const mockLog = getMockLog();
-  const tool = new _Monzilla.Monzilla(mockLog);
-  return tool.run([]).then(exitCode => {
-    expect(exitCode).toBe(-1);
-    done();
-  });
+test("no args", async () => {
+  const tool = new _MonzillaTool.MonzillaTool(container);
+  const exitCode = await tool.run([]);
+  expect(exitCode).toBe(-1);
 });
 //# sourceMappingURL=MonzillaTool.test.js.map

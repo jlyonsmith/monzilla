@@ -12,9 +12,10 @@ import * as version from "./version"
 
 @autobind
 export class MonzillaTool {
-  constructor(toolName, log) {
-    this.toolName = toolName
-    this.log = log
+  constructor(container) {
+    this.toolName = container.toolName
+    this.log = container.log
+    this.debug = container.debug
   }
 
   runCommand() {

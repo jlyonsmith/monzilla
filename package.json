@@ -17,6 +17,7 @@
     "deploy": "npm publish --access public"
   },
   "jest": {
+    "automock": false,
     "testPathIgnorePatterns": [
       "node_modules/",
       "scratch/",
@@ -29,16 +30,20 @@
   ],
   "author": "John Lyon-Smith",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jlyonsmith/monzilla/issues"
+  },
+  "homepage": "https://github.com/jlyonsmith/monzilla#readme",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.4",
-    "@babel/node": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.3.4",
-    "@babel/plugin-proposal-decorators": "^7.3.0",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
     "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
-    "@babel/preset-env": "^7.3.4",
-    "jest-cli": "^24.1.0"
+    "@babel/preset-env": "^7.5.5",
+    "jest-cli": "^24.8.0"
   },
   "dependencies": {
     "autobind-decorator": "^2.4.0",

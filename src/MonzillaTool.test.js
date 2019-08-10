@@ -1,52 +1,50 @@
-import { Monzilla } from './Monzilla'
-import fs from 'fs'
-import util from 'util'
+import { MonzillaTool } from "./MonzillaTool"
 
-function getMockLog() {
-  return {
-    info: jest.fn(),
-    warning: jest.fn(),
-    error: jest.fn()
+let container = null
+
+beforeEach(() => {
+  container = {
+    toolName: "monzilla",
+    log: {
+      info: jest.fn(),
+      warning: jest.fn(),
+      error: jest.fn(),
+      info2: jest.fn(),
+      error2: jest.fn(),
+      warning2: jest.fn(),
+    },
   }
-}
+})
 
-function getOutput(fn) {
+const getOutput = (fn) => {
   const calls = fn.mock.calls
-  if (calls.length > 0 && calls[0].length > 0) {
-    return calls[0][0]
-  } else {
-    return ''
-  }
+
+  return calls.length > 0 && calls[0].length > 0 ? calls[0][0] : ""
 }
 
-test('test help', done => {
-  const mockLog = getMockLog()
-  const tool = new Monzilla(mockLog)
+test("--help", async () => {
+  const tool = new MonzillaTool(container)
+  const exitCode = await tool.run(["--help"])
 
-  return tool.run(['--help']).then(exitCode => {
-    expect(exitCode).toBe(0)
-    expect(getOutput(mockLog.info)).toEqual(expect.stringContaining('--help'))
-    done()
-  })
+  expect(exitCode).toBe(0)
+  expect(getOutput(container.log.info)).toEqual(
+    expect.stringContaining("--help")
+  )
 })
 
-test('test version', done => {
-  const mockLog = getMockLog()
-  const tool = new Monzilla(mockLog)
+test("--version", async () => {
+  const tool = new MonzillaTool(container)
+  const exitCode = await tool.run(["--version"])
 
-  return tool.run(['--version']).then(exitCode => {
-    expect(exitCode).toBe(0)
-    expect(getOutput(mockLog.info)).toEqual(expect.stringMatching(/\d\.\d\.\d/))
-    done()
-  })
+  expect(exitCode).toBe(0)
+  expect(getOutput(container.log.info)).toEqual(
+    expect.stringMatching(/\d\.\d\.\d/)
+  )
 })
 
-test('test no args', done => {
-  const mockLog = getMockLog()
-  const tool = new Monzilla(mockLog)
+test("no args", async () => {
+  const tool = new MonzillaTool(container)
+  const exitCode = await tool.run([])
 
-  return tool.run([]).then(exitCode => {
-    expect(exitCode).toBe(-1)
-    done()
-  })
+  expect(exitCode).toBe(-1)
 })

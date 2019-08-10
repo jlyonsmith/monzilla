@@ -22,7 +22,10 @@ const log = {
   },
 }
 
-const tool = new MonzillaTool(path.basename(process.argv[1], ".js"), log)
+const tool = new MonzillaTool({
+  toolName: path.basename(process.argv[1], ".js"),
+  log,
+})
 
 tool
   .run(process.argv.slice(2))

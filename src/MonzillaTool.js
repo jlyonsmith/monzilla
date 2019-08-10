@@ -15,7 +15,7 @@ export class MonzillaTool {
   constructor(container) {
     this.toolName = container.toolName
     this.log = container.log
-    this.debug = container.debug
+    this.debug = !!container.debug
   }
 
   runCommand() {

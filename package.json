@@ -30,6 +30,10 @@
   ],
   "author": "John Lyon-Smith",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jlyonsmith/monzilla.git"
+  },
   "bugs": {
     "url": "https://github.com/jlyonsmith/monzilla/issues"
   },

@@ -42,6 +42,6 @@ The tool will watch files in symlinked directories, such as when a file in `npm 
 
 ## About the Code
 
-The tool is written in ES6 Javascript and transpiled to NodeJS 8.0 with Babel.
+The tool is written in ES6 Javascript and transpiled with Babel.
 
 All claims of superiority to other file monitoring tools are the sole opinion of the author.  Also, it's really hard to find a good `npm` package name that hasn't already been taken... ;)

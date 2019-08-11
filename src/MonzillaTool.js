@@ -18,10 +18,10 @@ export class MonzillaTool {
     this.debug = !!container.debug
   }
 
-  runCommand() {
-    this.log.info2(`Running command '${this.args.command}'`)
+  runCommand(command) {
+    this.log.info2(`Running command '${command}'`)
     this.log.info2("Control+C to exit/Control+R to restart")
-    const childProcess = exec(this.args.command, {
+    const childProcess = exec(command, {
       env: { ...process.env, FORCE_COLOR: 1 },
       shell: "/bin/bash",
     })
@@ -40,7 +40,7 @@ export class MonzillaTool {
       }
 
       if (this.childProcess.restart) {
-        this.runCommand(this.args.command)
+        this.runCommand(command)
       } else {
         this.childProcess = null
         this.log.info2("Waiting for file changes before running again")
@@ -90,14 +90,14 @@ export class MonzillaTool {
       boolean: ["help", "version"],
       "--": true,
     }
-    this.args = parseArgs(argv, options)
+    const args = parseArgs(argv, options)
 
-    if (this.args.version) {
+    if (args.version) {
       this.log.info(version.fullVersion)
       return 0
     }
 
-    if (this.args.help) {
+    if (args.help) {
       this.log.info(`
 usage: ${this.toolName} [options] <glob>[:<glob>...] -- <command>...
 
@@ -108,7 +108,7 @@ options:
       return 0
     }
 
-    const globs = this.args._[0]
+    const globs = args._[0]
 
     if (!globs) {
       this.log.error("Must supply at least one glob")
@@ -117,9 +117,9 @@ options:
 
     const globList = globs.split(":")
 
-    this.args.command = this.args["--"].join(" ")
+    args.command = args["--"].join(" ")
 
-    if (this.args.command.length === 0) {
+    if (args.command.length === 0) {
       this.log.error("Must supply a command to run")
       return -1
     }

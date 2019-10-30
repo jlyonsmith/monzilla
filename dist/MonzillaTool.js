@@ -40,6 +40,69 @@ let MonzillaTool = (0, _autobindDecorator.default)(_class = class MonzillaTool {
     this.debug = !!container.debug;
   }
 
+  runCommandInLoop(globs, command) {
+    const globList = globs.split(":");
+    let filenames = [];
+    globList.forEach(glob => {
+      filenames = filenames.concat((0, _glob.sync)(glob));
+    });
+    let dirnames = new Set();
+    filenames.forEach(filename => {
+      const dirname = _path.default.dirname(filename);
+
+      if (!dirnames.has(dirname) && _fs.default.statSync(dirname).isDirectory()) {
+        dirnames.add(dirname);
+      }
+    });
+
+    _readline.default.emitKeypressEvents(process.stdin);
+
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode(true);
+    }
+
+    process.stdin.on("keypress", (str, key) => {
+      if (key.ctrl) {
+        switch (key.name) {
+          case "c":
+            if (this.childProcess) {
+              this.killProcess(this.childProcess.pid).then(() => {
+                process.exit(0);
+              });
+            } else {
+              process.exit(0);
+            }
+
+            break;
+
+          case "r":
+            this.restartCommand(command);
+            break;
+
+          default:
+            break;
+        }
+      }
+    });
+    this.runCommand(command);
+    let watchers = [];
+    dirnames.forEach(dirname => {
+      const watcher = _fs.default.watch(dirname);
+
+      watcher.on("change", (eventType, filename) => {
+        // Debounce changes to files
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+        }
+
+        this.timeout = (0, _timers.setTimeout)(() => {
+          this.restartCommand(command);
+        }, 500);
+      });
+      watchers.push(watcher);
+    });
+  }
+
   runCommand(command) {
     this.log.info2(`Running command '${command}'`);
     this.log.info2("Control+C to exit/Control+R to restart");
@@ -82,12 +145,12 @@ let MonzillaTool = (0, _autobindDecorator.default)(_class = class MonzillaTool {
     this.childProcess = childProcess;
   }
 
-  restartCommand() {
+  restartCommand(command) {
     if (this.childProcess) {
       this.childProcess.restart = true;
       this.killProcess(this.childProcess.pid); // Process will restart when it exits
     } else {
-      this.runCommand();
+      this.runCommand(command);
     }
   }
 
@@ -131,73 +194,14 @@ options:
       return -1;
     }
 
-    const globList = globs.split(":");
-    args.command = args["--"].join(" ");
+    const command = args["--"].join(" ");
 
-    if (args.command.length === 0) {
+    if (command.length === 0) {
       this.log.error("Must supply a command to run");
       return -1;
     }
 
-    let filenames = [];
-    globList.forEach(glob => {
-      filenames = filenames.concat((0, _glob.sync)(glob));
-    });
-    let dirnames = new Set();
-    filenames.forEach(filename => {
-      const dirname = _path.default.dirname(filename);
-
-      if (!dirnames.has(dirname) && _fs.default.statSync(dirname).isDirectory()) {
-        dirnames.add(dirname);
-      }
-    });
-
-    _readline.default.emitKeypressEvents(process.stdin);
-
-    if (process.stdin.isTTY) {
-      process.stdin.setRawMode(true);
-    }
-
-    process.stdin.on("keypress", (str, key) => {
-      if (key.ctrl) {
-        switch (key.name) {
-          case "c":
-            if (this.childProcess) {
-              this.killProcess(this.childProcess.pid).then(() => {
-                process.exit(0);
-              });
-            } else {
-              process.exit(0);
-            }
-
-            break;
-
-          case "r":
-            this.restartCommand();
-            break;
-
-          default:
-            break;
-        }
-      }
-    });
-    this.runCommand();
-    let watchers = [];
-    dirnames.forEach(dirname => {
-      const watcher = _fs.default.watch(dirname);
-
-      watcher.on("change", (eventType, filename) => {
-        // Debounce changes to files
-        if (this.timeout) {
-          clearTimeout(this.timeout);
-        }
-
-        this.timeout = (0, _timers.setTimeout)(() => {
-          this.restartCommand();
-        }, 500);
-      });
-      watchers.push(watcher);
-    });
+    this.runCommandInLoop(globs, command);
     return 0;
   }
 

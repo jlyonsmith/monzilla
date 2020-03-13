@@ -39,21 +39,21 @@
   },
   "homepage": "https://github.com/jlyonsmith/monzilla#readme",
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/node": "^7.5.5",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-proposal-decorators": "^7.4.4",
-    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
-    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
-    "@babel/preset-env": "^7.5.5",
-    "jest-cli": "^24.8.0"
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/node": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-decorators": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
+    "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
+    "jest-cli": "^25.1.0"
   },
   "dependencies": {
     "autobind-decorator": "^2.4.0",
-    "chalk": "^2.4.2",
-    "glob": "^7.1.4",
-    "minimist": "^1.2.0",
+    "chalk": "^3.0.0",
+    "glob": "^7.1.6",
+    "minimist": "^1.2.5",
     "ps-tree": "^1.2.0"
   }
 }
